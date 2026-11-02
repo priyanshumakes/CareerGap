@@ -7157,6 +7157,11 @@ are defined once with the rest of the results-card overrides below.
     padding: 16px 20px 0;
 }
 
+/* Leave room before the footer only when no workspace follows the tabs. */
+.analysis-tabs:not(.hidden):not(:has(~ section:not(.hidden))) {
+    padding-bottom: 32px;
+}
+
 .analysis-tab {
     padding: 10px 18px;
     border: 1px solid var(--border);
