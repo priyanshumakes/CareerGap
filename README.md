@@ -2,6 +2,12 @@
 
 > An Evidence-Based Career Readiness Engine
 
+[![Tests](https://github.com/priyanshumakes/CareerGap/actions/workflows/tests.yml/badge.svg)](https://github.com/priyanshumakes/CareerGap/actions/workflows/tests.yml)
+
+**Live app:** https://careergap.priyanshu.studio
+
+![CareerGap home page](docs/screenshot-home.png)
+
 CareerGap analyzes a candidate's resume against a job description to identify skill gaps, prioritize missing skills using available market evidence, find relevant learning resources, and determine how existing projects can be strengthened to demonstrate missing skills.
 
 ## What CareerGap Does
@@ -26,6 +32,8 @@ CareerGap is built around four core capabilities:
    - Determines whether missing skills genuinely fit those projects
    - Suggests meaningful upgrades when appropriate
    - Explicitly avoids forcing unrelated skills into projects
+
+The app also includes a **Resume Builder**, **Saved Analyses** history, and **Interview Studio** (AI-generated interview questions with structured feedback).
 
 ## Architecture
 
