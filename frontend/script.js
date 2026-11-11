@@ -52,6 +52,9 @@ document.addEventListener(
         const analyzeButton =
             document.getElementById("analyze-button");
 
+        const analyzeStatus =
+            document.getElementById("analyze-status");
+
         const resumeInput =
             document.getElementById("resume");
 
@@ -4970,17 +4973,68 @@ analysisHistoryList.innerHTML =
         // ANALYZE
         // =================================================
 
+        // Inline validation messages. A blocking alert() freezes the
+        // whole page while it is open, so the form never uses one.
+        function showAnalyzeError(
+            message,
+            field
+        ) {
+
+            if (analyzeStatus) {
+
+                analyzeStatus.textContent =
+                    message;
+
+                analyzeStatus.classList.add(
+                    "error"
+                );
+
+            }
+
+            if (field) {
+
+                field.focus();
+
+            }
+        }
+
+        function clearAnalyzeError() {
+
+            if (analyzeStatus) {
+
+                analyzeStatus.textContent =
+                    "";
+
+                analyzeStatus.classList.remove(
+                    "error"
+                );
+
+            }
+        }
+
+        if (analyzeSection) {
+
+            analyzeSection.addEventListener(
+                "input",
+                clearAnalyzeError
+            );
+
+        }
+
         analyzeButton.addEventListener(
             "click",
             async function () {
+
+                clearAnalyzeError();
 
                 const data =
                     collectCareerGapData();
 
                 if (!data.resume) {
 
-                    alert(
-                        "Please enter your resume or upload a resume file."
+                    showAnalyzeError(
+                        "Please enter your resume or upload a resume file.",
+                        resumeInput
                     );
 
                     return;
@@ -4988,8 +5042,9 @@ analysisHistoryList.innerHTML =
 
                 if (!data.job_description) {
 
-                    alert(
-                        "Please enter the target job description or upload a job description file."
+                    showAnalyzeError(
+                        "Please enter the target job description or upload a job description file.",
+                        jobDescriptionInput
                     );
 
                     return;
@@ -5004,8 +5059,31 @@ analysisHistoryList.innerHTML =
 
                 if (invalidProject) {
 
-                    alert(
-                        "Please complete every project name and description."
+                    const emptyProjectField =
+                        Array.from(
+                            projectsContainer.querySelectorAll(
+                                ".project-input"
+                            )
+                        )
+                            .flatMap(
+                                project => [
+                                    project.querySelector(
+                                        ".project-name"
+                                    ),
+                                    project.querySelector(
+                                        ".project-description"
+                                    )
+                                ]
+                            )
+                            .find(
+                                field =>
+                                    field &&
+                                    !field.value.trim()
+                            );
+
+                    showAnalyzeError(
+                        "Please complete every project name and description.",
+                        emptyProjectField
                     );
 
                     return;

@@ -1834,6 +1834,30 @@ textarea:focus,
 
 
 
+.analyze-status {
+
+    min-height: 20px;
+
+    margin: 10px 0 0;
+
+    font-size: 0.74rem;
+
+    color: var(--olive-soft);
+
+}
+
+
+
+.analyze-status.error {
+
+    color: var(--error-red);
+
+    font-weight: 650;
+
+}
+
+
+
 
 
 .upload-hint {
