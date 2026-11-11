@@ -1078,7 +1078,7 @@ def _calculate_impact_score(
 
     # Check for measurable impact signals - only credible quantitative evidence
     metric_signals = [
-        r"\d+%", r"\d+\s*percent", r"increased by \d+", "decreased by \d+", "reduced by \d+", "improved by \d+",
+        r"\d+%", r"\d+\s*percent", r"increased by \d+", r"decreased by \d+", r"reduced by \d+", r"improved by \d+",
         r"\$\d+", r"\d+\s*k\b", r"\d+\s*m\b", r"\d+\s*x\b", "scaled", "optimized",
         "accelerated", "delivered", "launched", "built", "designed", "architected"
     ]
@@ -1578,6 +1578,8 @@ def analyze_resume_pdf(
     try:
         reader = PdfReader(io.BytesIO(pdf_bytes))
         page_count = len(reader.pages)
+        if page_count > 50:
+            raise ValueError("PDF has too many pages (maximum 50).")
 
         text_parts = []
         for page in reader.pages:

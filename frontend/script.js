@@ -4710,10 +4710,6 @@ analysisHistoryList.innerHTML =
                             return;
                         }
 
-                        console.log(
-                            "Opening saved analysis:",
-                            savedAnalysis
-                        );
 
                         await displaySavedAnalysis(
                             savedAnalysis.analysis,
@@ -5015,11 +5011,7 @@ analysisHistoryList.innerHTML =
                     return;
                 }
 
-                console.log(
-                    "Sending data to CareerGap API:"
-                );
 
-                console.log(data);
 
                 analyzeButton.disabled =
                     true;
@@ -5049,11 +5041,7 @@ analysisHistoryList.innerHTML =
                             data
                         );
 
-                    console.log(
-                        "CareerGap API Response:"
-                    );
 
-                    console.log(result);
 
                     currentAnalysis =
                         result;
@@ -7193,7 +7181,6 @@ analysisHistoryList.innerHTML =
 
                 // Check if resume was switched during request
                 if (atsCheckState.pendingResumeId !== resumeBuilderState.selectedResumeId) {
-                    console.log("Resume switched during ATS request, discarding stale response");
                     return;
                 }
 
@@ -7210,7 +7197,6 @@ analysisHistoryList.innerHTML =
 
                 // Double-check resume still matches
                 if (atsCheckState.pendingResumeId !== resumeBuilderState.selectedResumeId) {
-                    console.log("Resume switched during ATS request, discarding stale response");
                     return;
                 }
 
@@ -7223,7 +7209,6 @@ analysisHistoryList.innerHTML =
 
             } catch (error) {
                 if (error.name === "AbortError") {
-                    console.log("ATS request aborted due to resume switch");
                     return;
                 }
                 console.error("ATS check error:", error);
@@ -7912,7 +7897,7 @@ analysisHistoryList.innerHTML =
                             : "—";
 
                         return `
-                            <article class="interview-history-card" data-id="${item.id}">
+                            <article class="interview-history-card" data-id="${escapeHTML(item.id)}">
                                 <header>
                                     <span class="interview-history-mode">${escapeHTML(item.mode === "quick" ? "Quick Practice" : "Full Mock Interview")}</span>
                                     <span class="interview-history-date">${date}</span>
@@ -7922,7 +7907,7 @@ analysisHistoryList.innerHTML =
                                     <span class="interview-history-score">${scoreDisplay}</span>
                                 </div>
                                 <footer>
-                                    <button type="button" class="interview-history-delete" data-id="${item.id}" aria-label="Delete session">Delete</button>
+                                    <button type="button" class="interview-history-delete" data-id="${escapeHTML(item.id)}" aria-label="Delete session">Delete</button>
                                 </footer>
                             </article>
                         `;
@@ -8285,7 +8270,7 @@ analysisHistoryList.innerHTML =
                                 <article class="interview-review-feedback-category">
                                     <header class="interview-review-feedback-category-header">
                                         <span class="interview-review-feedback-category-name">${cat}</span>
-                                        <span class="interview-review-feedback-category-score">${catData.score}%</span>
+                                        <span class="interview-review-feedback-category-score">${escapeHTML(Number(catData.score))}%</span>
                                     </header>
                                     ${catData.strengths && catData.strengths.length ? `
                                         <div class="interview-review-feedback-list">

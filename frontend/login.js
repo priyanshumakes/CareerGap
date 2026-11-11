@@ -382,8 +382,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             loginButton.disabled = true;
 
-            loginButton.innerHTML =
-                "Signing in...";
+            loginButton.textContent = "Signing in...";
 
 
             const { error } =
@@ -400,8 +399,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 loginButton.disabled = false;
 
-                loginButton.innerHTML =
-                    "Sign In <span>→</span>";
+                loginButton.textContent = "Sign In ";
+                loginButton.appendChild(Object.assign(document.createElement("span"), { textContent: "→" }));
 
                 return;
 

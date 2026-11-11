@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -53,6 +54,10 @@ def safe_error_detail(error):
 def build_advisor_prompt(career_gap_data):
     """Convert structured CareerGap evidence into an AI advisor prompt."""
     evidence = json.dumps(career_gap_data, indent=2, ensure_ascii=False)
+    # User text must not be able to close the evidence block early.
+    evidence = re.sub(
+        r"<\s*/?\s*CAREERGAP_EVIDENCE\s*>", "", evidence, flags=re.IGNORECASE
+    )
 
     return f"""
 You are the AI career advisor for CareerGap.

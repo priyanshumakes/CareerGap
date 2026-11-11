@@ -1,5 +1,6 @@
 from pathlib import Path
 import tempfile
+import zipfile
 
 from pypdf import PdfReader
 from docx import Document
@@ -14,6 +15,12 @@ ALLOWED_EXTENSIONS = {
 MAX_FILE_SIZE = 5 * 1024 * 1024
 MAX_EXTRACTED_TEXT = 50_000
 CHUNK_SIZE = 64 * 1024
+# A real resume is a few pages. These caps stop crafted files (a tiny
+# DOCX that expands to gigabytes of XML, a PDF with tens of thousands of
+# empty pages) from exhausting server memory or CPU.
+MAX_PDF_PAGES = 50
+MAX_DOCX_MEMBER_SIZE = 5 * 1024 * 1024
+MAX_DOCX_TOTAL_SIZE = 20 * 1024 * 1024
 
 
 def get_file_extension(filename: str) -> str:
@@ -47,11 +54,29 @@ def validate_file_signature(file_path: Path, extension: str) -> None:
     elif extension == ".docx":
         if header[:4] != b"PK\x03\x04":
             raise ValueError("The uploaded file is not a valid DOCX file.")
+        validate_docx_archive(file_path)
 
     elif extension == ".txt":
         # TXT files don't have a universal magic number.
         # Their content is validated while decoding.
         return
+
+
+def validate_docx_archive(file_path: Path) -> None:
+    """Reject DOCX archives that expand far beyond a normal resume."""
+    try:
+        with zipfile.ZipFile(file_path) as archive:
+            members = archive.infolist()
+    except zipfile.BadZipFile:
+        raise ValueError("The uploaded file is not a valid DOCX file.") from None
+
+    total = 0
+    for member in members:
+        if member.file_size > MAX_DOCX_MEMBER_SIZE:
+            raise ValueError("The uploaded DOCX file is too large when opened.")
+        total += member.file_size
+    if total > MAX_DOCX_TOTAL_SIZE:
+        raise ValueError("The uploaded DOCX file is too large when opened.")
 
 
 def extract_text(file_path: Path, extension: str) -> str:
@@ -64,15 +89,18 @@ def extract_text(file_path: Path, extension: str) -> str:
     if extension == ".pdf":
         reader = PdfReader(str(file_path))
 
+        if len(reader.pages) > MAX_PDF_PAGES:
+            raise ValueError(
+                f"PDF has too many pages. Maximum is {MAX_PDF_PAGES}."
+            )
+
         text_parts = []
+        current_length = 0
 
         for page in reader.pages:
             text = page.extract_text() or ""
             text_parts.append(text)
-
-            current_length = sum(
-                len(part) for part in text_parts
-            )
+            current_length += len(text)
 
             if current_length > MAX_EXTRACTED_TEXT:
                 raise ValueError(
@@ -85,13 +113,11 @@ def extract_text(file_path: Path, extension: str) -> str:
         document = Document(str(file_path))
 
         text_parts = []
+        current_length = 0
 
         for paragraph in document.paragraphs:
             text_parts.append(paragraph.text)
-
-            current_length = sum(
-                len(part) for part in text_parts
-            )
+            current_length += len(paragraph.text)
 
             if current_length > MAX_EXTRACTED_TEXT:
                 raise ValueError(

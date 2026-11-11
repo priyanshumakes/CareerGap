@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         signupButton.disabled = true;
-        signupButton.innerHTML = "Creating account...";
+        signupButton.textContent = "Creating account...";
 
         const { error } =
             await careerGapSupabase.auth.signUp({
@@ -110,8 +110,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (error) {
             alert(error.message);
             signupButton.disabled = false;
-            signupButton.innerHTML =
-                "Create Account <span>→</span>";
+            signupButton.textContent = "Create Account ";
+            signupButton.appendChild(Object.assign(document.createElement("span"), { textContent: "→" }));
             return;
         }
 
