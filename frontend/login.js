@@ -61,6 +61,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =================================================
+    // BOT CHECK (Cloudflare Turnstile)
+    // Renders only when a site key is configured in
+    // turnstile-config.js; otherwise the renders resolve
+    // to null and the forms behave exactly as before.
+    // The recovery widget renders lazily the first time
+    // the recovery form is shown, because rendering a
+    // widget inside a hidden form can size it wrong.
+    // =================================================
+
+    let loginTurnstileWidgetId = null;
+
+    let recoveryTurnstileWidgetId = null;
+
+    careerGapTurnstileRender("turnstile-login-container")
+        .then(function (widgetId) {
+            loginTurnstileWidgetId = widgetId;
+        })
+        .catch(function () {
+            // See the matching note in signup.js: before CAPTCHA
+            // is enabled in Supabase a failed widget load must not
+            // break sign-in; after it is enabled Supabase rejects
+            // tokenless calls itself.
+            loginTurnstileWidgetId = null;
+        });
+
+    function renderRecoveryTurnstile() {
+        if (
+            recoveryTurnstileWidgetId !== null ||
+            !careerGapTurnstileEnabled()
+        ) {
+            return;
+        }
+
+        careerGapTurnstileRender("turnstile-recovery-container")
+            .then(function (widgetId) {
+                recoveryTurnstileWidgetId = widgetId;
+            })
+            .catch(function () {
+                recoveryTurnstileWidgetId = null;
+            });
+    }
+
+
+    // =================================================
     // SHOW / HIDE PASSWORD
     // =================================================
 
@@ -188,6 +232,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setRecoveryStatus("", "");
 
+        renderRecoveryTurnstile();
+
         if (recoveryEmailInput) {
             recoveryEmailInput.focus();
         }
@@ -290,6 +336,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
+                // When Turnstile is configured a solved token is
+                // required; Supabase verifies it server-side once
+                // CAPTCHA protection is enabled there.
+                const recoveryOptions = {
+                    // The redirect target is derived from the
+                    // page origin, so local development and
+                    // the deployed site each resolve to their
+                    // own reset-password page.
+                    redirectTo:
+                        window.location.origin +
+                        "/reset-password.html"
+                };
+
+                if (careerGapTurnstileEnabled()) {
+                    const captchaToken =
+                        careerGapTurnstileToken(
+                            recoveryTurnstileWidgetId
+                        );
+
+                    if (!captchaToken) {
+                        setRecoveryStatus(
+                            "Please complete the bot check.",
+                            "error"
+                        );
+
+                        return;
+                    }
+
+                    recoveryOptions.captchaToken = captchaToken;
+                }
+
+
                 if (recoverySubmitButton) {
                     recoverySubmitButton.disabled = true;
                     recoverySubmitButton.textContent =
@@ -297,22 +375,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                // The redirect target is derived from the
-                // page origin, so local development and
-                // the deployed site each resolve to their
-                // own reset-password page.
-                const redirectTo =
-                    window.location.origin +
-                    "/reset-password.html";
-
-
                 const { error } =
                     await careerGapSupabase.auth
                         .resetPasswordForEmail(
                             recoveryEmail,
-                            {
-                                redirectTo: redirectTo
-                            }
+                            recoveryOptions
                         );
 
 
@@ -321,6 +388,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     recoverySubmitButton.textContent =
                         "Send reset link";
                 }
+
+                careerGapTurnstileReset(
+                    recoveryTurnstileWidgetId
+                );
 
 
                 if (error) {
@@ -380,6 +451,31 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
+            // When Turnstile is configured a solved token is
+            // required; Supabase verifies it server-side once
+            // CAPTCHA protection is enabled there.
+            const signInOptions = {};
+
+            if (careerGapTurnstileEnabled()) {
+
+                const captchaToken =
+                    careerGapTurnstileToken(
+                        loginTurnstileWidgetId
+                    );
+
+                if (!captchaToken) {
+
+                    alert("Please complete the bot check.");
+
+                    return;
+
+                }
+
+                signInOptions.captchaToken = captchaToken;
+
+            }
+
+
             loginButton.disabled = true;
 
             loginButton.textContent = "Signing in...";
@@ -389,13 +485,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 await careerGapSupabase.auth
                     .signInWithPassword({
                         email: email,
-                        password: password
+                        password: password,
+                        options: signInOptions
                     });
 
 
             if (error) {
 
                 alert(error.message);
+
+                careerGapTurnstileReset(
+                    loginTurnstileWidgetId
+                );
 
                 loginButton.disabled = false;
 
