@@ -24,6 +24,7 @@
     >
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="turnstile-config.js"></script>
     <script src="login.js" defer></script>
 
 
@@ -177,6 +178,12 @@
             </div>
 
 
+            <div
+                id="turnstile-login-container"
+                class="turnstile-container"
+            ></div>
+
+
             <button
                 type="submit"
                 class="login-button"
@@ -236,6 +243,12 @@
                 role="status"
                 aria-live="polite"
             ></p>
+
+
+            <div
+                id="turnstile-recovery-container"
+                class="turnstile-container"
+            ></div>
 
 
             <button

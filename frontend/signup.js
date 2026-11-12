@@ -72,6 +72,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const MIN_PASSWORD_LENGTH = 8;
 
+    // Cloudflare Turnstile bot check. Renders only when a site key is
+    // configured (turnstile-config.js); otherwise resolves to null
+    // and the form behaves exactly as before.
+    let turnstileWidgetId = null;
+
+    careerGapTurnstileRender("turnstile-container")
+        .then(function (widgetId) {
+            turnstileWidgetId = widgetId;
+        })
+        .catch(function () {
+            // The widget failing to load must not break the form for
+            // everyone before CAPTCHA is enabled in Supabase; once it
+            // is enabled, sign-up without a token is rejected by
+            // Supabase itself with a clear message.
+            turnstileWidgetId = null;
+        });
+
     signupForm.addEventListener("submit", async function (event) {
         event.preventDefault();
 
@@ -98,6 +115,23 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // When Turnstile is configured a solved token is required;
+        // Supabase verifies it server-side once CAPTCHA protection is
+        // enabled there.
+        const signUpOptions = {};
+
+        if (careerGapTurnstileEnabled()) {
+            const captchaToken =
+                careerGapTurnstileToken(turnstileWidgetId);
+
+            if (!captchaToken) {
+                alert("Please complete the bot check.");
+                return;
+            }
+
+            signUpOptions.captchaToken = captchaToken;
+        }
+
         signupButton.disabled = true;
         signupButton.textContent = "Creating account...";
 
@@ -105,10 +139,12 @@ document.addEventListener("DOMContentLoaded", function () {
             await careerGapSupabase.auth.signUp({
                 email: email,
                 password: password,
+                options: signUpOptions,
             });
 
         if (error) {
             alert(error.message);
+            careerGapTurnstileReset(turnstileWidgetId);
             signupButton.disabled = false;
             signupButton.textContent = "Create Account ";
             signupButton.appendChild(Object.assign(document.createElement("span"), { textContent: "→" }));

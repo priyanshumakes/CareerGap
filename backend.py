@@ -33,6 +33,7 @@ else:
 from auth import get_current_user, security
 from career_gap import run_careergap
 from ai_advisor import DEFAULT_MODEL, build_client, generate_career_advice, safe_error_detail
+from ai_quota import enforce_ai_quota
 from groq_provider import AIProviderError
 from ats_match import extract_job_keywords, calculate_ats_scorecard, analyze_resume_pdf
 from database import (
@@ -1198,6 +1199,9 @@ def analyze(
     credentials: HTTPAuthorizationCredentials = Depends(
         security
     ),
+    # Consumes one unit of the per-user and global daily AI quota
+    # (Groq free plan protection); raises 429 when either is spent.
+    ai_quota_claims: dict = Depends(enforce_ai_quota),
 ):
     projects = [
         {
@@ -1295,7 +1299,9 @@ def analyze(
             detail="CareerGap analysis failed unexpectedly.",
         )
 @app.post("/ats/keywords")
+@limiter.limit("10/minute")
 def ats_keywords(
+    request: Request,
     career_gap_request: CareerGapRequest,
     claims: dict = Depends(get_current_user),
 ):
@@ -1697,6 +1703,7 @@ async def interview_generate(
     interview_request: InterviewGenerateRequest,
     claims: dict = Depends(get_current_user),
     credentials: HTTPAuthorizationCredentials = Depends(security),
+    ai_quota_claims: dict = Depends(enforce_ai_quota),
 ):
     user_id = claims["sub"]
 
@@ -1809,6 +1816,7 @@ async def interview_answer(
     answer_request: InterviewAnswerRequest,
     claims: dict = Depends(get_current_user),
     credentials: HTTPAuthorizationCredentials = Depends(security),
+    ai_quota_claims: dict = Depends(enforce_ai_quota),
 ):
     user_id = claims["sub"]
 

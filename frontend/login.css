@@ -804,3 +804,30 @@ a {
     }
 
 }
+
+
+/* Cloudflare Turnstile bot-check widget (auth forms).
+
+   The container is empty while the feature is unconfigured, so it
+   collapses to nothing and the form layout is unchanged; once a
+   site key is set, the widget renders centered above the button. */
+
+.turnstile-container {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin: 4px 0 16px;
+
+}
+
+
+.turnstile-container:empty {
+
+    display: none;
+
+    margin: 0;
+
+}
+
