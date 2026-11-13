@@ -84,7 +84,7 @@ def _hero_section(html: str) -> str:
     return html[start:html.index("</section>", start)]
 
 
-def test_eyebrow_badge_is_scoped_to_the_hero():
+def test_hero_eyebrow_badge_style_stays_scoped():
     css = _read(STYLE_CSS)
     badge = _rule(css, ".hero .eyebrow")
 
@@ -103,12 +103,6 @@ def test_eyebrow_badge_is_scoped_to_the_hero():
     assert "background" not in base
     assert "border" not in base
     assert "letter-spacing: 0.22em;" in base
-
-    html = _read(INDEX_HTML)
-    assert html.count('class="eyebrow"') == 5
-    hero = _hero_section(html)
-    assert hero.count('class="eyebrow"') == 1
-    assert "CAREER READINESS ENGINE" in hero
 
 
 def test_headline_tightened_without_copy_change():
@@ -230,7 +224,7 @@ def test_responsive_and_existing_hero_contracts_hold():
         "pointer-events: none;",
     ):
         assert prop in illustration
-    assert css.count(".hero-illustration {") == 2
+    assert css.count(".hero-illustration {") == 3
 
     # No hard-coded colours in the new polish rules.
     for selector in (

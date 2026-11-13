@@ -118,8 +118,8 @@ def test_mobile_hero_height_collapses():
 def test_only_one_hide_rule():
     css = _read(STYLE_CSS)
 
-    assert css.count(".hero-illustration {") == 2, (
-        "the base rule plus exactly one responsive hide rule"
+    assert css.count(".hero-illustration {") == 3, (
+        "the base rule plus the desktop hide rule plus the phone orbit rule"
     )
 
     for max_width in (950, 900):

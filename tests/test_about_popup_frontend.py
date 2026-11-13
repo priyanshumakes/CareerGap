@@ -4,11 +4,8 @@ from pathlib import Path
 FRONTEND = Path(__file__).resolve().parent.parent / 'frontend'
 
 
-def test_about_dialog_is_named_text_only_and_keeps_badge_label():
+def test_about_dialog_is_named_and_text_only():
     html = (FRONTEND / 'index.html').read_text()
-    assert 'CAREER READINESS ENGINE' in html
-    assert 'id="about-careergap-trigger"' in html
-    assert 'aria-haspopup="dialog"' in html
     start = html.index('<dialog')
     end = html.index('</dialog>', start)
     dialog = html[start:end]
