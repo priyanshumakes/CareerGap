@@ -10671,3 +10671,219 @@ body:not(.account-page) .primary-nav .primary-nav-btn:focus-visible {
         white-space: nowrap;
     }
 }
+
+
+/* =========================================================
+   HERO REFRESH (locked 2026-11-13): glass card + rail pulse
+   + staggered entrance + live "Orbit Map" illustration.
+   Desktop: card left, orbit right. Phones: card first,
+   orbit as a wide strip below it. No button above the
+   headline anymore.
+========================================================= */
+
+.hero-content {
+    position: relative;
+    border-radius: 28px;
+    padding: 40px 44px 40px 56px;
+    overflow: hidden;
+    max-width: 710px;
+    backdrop-filter: blur(8px);
+}
+
+.hero-content::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 22px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    animation: hero-corner-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-corner-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+/* Thin rail inside the card's left edge with a travelling pulse. */
+.hero-rail {
+    position: absolute;
+    top: 46px;
+    bottom: 46px;
+    width: 3px;
+    border-radius: 2px;
+}
+
+.hero-rail i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 64px;
+    border-radius: 2px;
+    animation: hero-rail-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes hero-rail-pulse {
+    0% { top: 0; opacity: 1; }
+    70% { top: calc(100% - 64px); opacity: 1; }
+    100% { top: calc(100% - 64px); opacity: 0; }
+}
+
+/* Word-by-word entrance, runs once on load (see script.js). */
+.hero h1 .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(26px);
+    animation: hero-word-rise 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.1) forwards;
+}
+
+@keyframes hero-word-rise {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-description {
+    opacity: 0;
+    animation: hero-fade-up 0.8s 1.3s ease forwards;
+    transform: translateY(12px);
+}
+
+.hero-button {
+    opacity: 0;
+    animation: hero-button-pop 0.55s 1.9s cubic-bezier(0.2, 1.5, 0.4, 1) forwards;
+    transform: scale(0.85);
+}
+
+@keyframes hero-fade-up {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-button-pop {
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Orbit Map motion */
+.hero-illustration .orbit-spin {
+    transform-origin: 200px 270px;
+    animation: hero-orbit-spin 14s linear infinite;
+}
+
+.hero-illustration .orbit-spin.s2 {
+    animation-duration: 19s;
+    animation-direction: reverse;
+}
+
+@keyframes hero-orbit-spin {
+    to { transform: rotate(360deg); }
+}
+
+.hero-illustration .oc {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hero-chip-float 5s ease-in-out infinite alternate;
+}
+
+@keyframes hero-chip-float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-9px); }
+}
+
+.hero-illustration .orbit-doc {
+    animation: hero-doc-float 6s ease-in-out infinite alternate;
+}
+
+@keyframes hero-doc-float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-7px); }
+}
+
+.hero-illustration .orbit-check {
+    animation: hero-check-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes hero-check-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+
+/* Theme colours for the new pieces (dark first, light below). */
+html[data-theme="dark"] .hero-content {
+    background: rgba(237, 240, 229, 0.045);
+    border: 1px solid rgba(168, 196, 136, 0.26);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .hero-content::after { background: #A8C488; }
+html[data-theme="dark"] .hero-rail { background: rgba(168, 196, 136, 0.28); }
+html[data-theme="dark"] .hero-rail i { background: #A8C488; }
+
+html[data-theme="light"] .hero-content {
+    background: rgba(255, 252, 242, 0.65);
+    border: 1px solid rgba(75, 96, 67, 0.16);
+    box-shadow: 0 18px 40px rgba(75, 96, 67, 0.12);
+}
+
+html[data-theme="light"] .hero-content::after { background: #2E6038; }
+html[data-theme="light"] .hero-rail { background: rgba(46, 96, 56, 0.22); }
+html[data-theme="light"] .hero-rail i { background: #2E6038; }
+
+html[data-theme="light"] .hero-illustration .orbit-ring { stroke: #C6D8A7; }
+html[data-theme="light"] .hero-illustration .orbit-dot { fill: #2E6038; }
+
+/* Phones: card first, then the orbit as a wide strip below it.
+   Overrides the old rule that hid the illustration under 1100px. */
+@media (max-width: 1100px) {
+    .hero {
+        flex-direction: column;
+        justify-content: center;
+        gap: 22px;
+    }
+
+    .hero-illustration {
+        display: block;
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        height: 205px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .hero-content {
+        padding: 26px 24px 26px 42px;
+        max-width: 100%;
+        border-radius: 22px;
+    }
+
+    .hero-rail {
+        left: 19px;
+        top: 30px;
+        bottom: 30px;
+    }
+}
+
+/* Desktop rail position (needs the card padding offset). */
+@media (min-width: 1101px) {
+    .hero-rail { left: 26px; }
+}
+
+/* Reduced motion: no entrance or looping animation, content just shows. */
+@media (prefers-reduced-motion: reduce) {
+    .hero h1 .w,
+    .hero-description,
+    .hero-button {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .hero-illustration *,
+    .hero-rail i,
+    .hero-content::after {
+        animation: none !important;
+    }
+}
+

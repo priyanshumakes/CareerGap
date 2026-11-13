@@ -8434,3 +8434,34 @@ analysisHistoryList.innerHTML =
 initResumeBuilder();
     }
 );
+
+
+// =========================================================
+// HERO ENTRANCE (locked 2026-11-13): split the headline into
+// word spans so the CSS word-rise animation can stagger them.
+// Words come from the markup, so copy changes need no JS edit.
+// Reduced-motion users see the final state via the CSS block.
+// =========================================================
+document.addEventListener("DOMContentLoaded", function () {
+    const heroTitle = document.querySelector(".hero h1");
+    if (!heroTitle) return;
+
+    const lines = heroTitle.innerHTML.split(/<br\s*\/?>/i);
+    heroTitle.innerHTML = lines
+        .map(function (line) {
+            return line
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .map(function (word) {
+                    return '<span class="w">' + word + "</span>";
+                })
+                .join(" ");
+        })
+        .join("<br>");
+
+    heroTitle.querySelectorAll(".w").forEach(function (span, i) {
+        span.style.animationDelay = (0.12 * i).toFixed(2) + "s";
+    });
+});
+
