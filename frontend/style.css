@@ -10831,7 +10831,7 @@ html[data-theme="light"] .hero-rail i { background: #2E6038; }
 html[data-theme="light"] .hero-illustration .orbit-ring { stroke: #C6D8A7; }
 html[data-theme="light"] .hero-illustration .orbit-dot { fill: #2E6038; }
 
-/* Phones: card first, then the orbit as a wide strip below it.
+/* Phones: card first, then the orbit as a compact centered block below it.
    Overrides the old rule that hid the illustration under 1100px. */
 @media (max-width: 1100px) {
     .hero {
@@ -10846,9 +10846,9 @@ html[data-theme="light"] .hero-illustration .orbit-dot { fill: #2E6038; }
         right: auto;
         top: auto;
         transform: none;
-        width: 100%;
-        height: 205px;
-        max-width: 100%;
+        width: 215px;
+        height: 270px;
+        max-width: 58%;
         margin: 0 auto;
     }
 
